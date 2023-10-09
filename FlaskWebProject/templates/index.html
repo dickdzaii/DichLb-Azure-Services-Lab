@@ -22,7 +22,12 @@
                 <td>{{ post.author }}</td>
                 <td>{{ post.image_path != None }}</td>
                 <td><a href="{{ url_for('post', id=post.id) }}">Edit Post</a></td>
-                <td><a class="hover-danger" href="{{ url_for('delete-post', id=post.id) }}">Delete Post</a></td>
+                <td><a class="hover-danger" href="{{ url_for('delete_post', id=post.id) }}">Delete Post</a></td>
+                {% if post.image_path != None %}
+                <td><a class="hover-danger" href="{{ url_for('remove_image', id=post.id) }}">Remove Image</a></td>
+                {% else %}
+                <td></td>
+                {% endif %}
             </tr>
             {% endfor %}
         </table>

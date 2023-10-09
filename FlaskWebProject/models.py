@@ -65,12 +65,28 @@ class Post(db.Model):
             self.image_path =  filename
         if new:
             db.session.add(self)
+            flash('Successfully created a post with title ' + '"' + self.title + '"')
+        else:
+            flash('Successfully updated the post with title ' + '"' + self.title + '"')
+
         db.session.commit()
     
     def delete_post(self):
         try:
-            blob_service.delete_blob(blob_container, self.image_path)
+            if self.image_path:
+                blob_service.delete_blob(blob_container, self.image_path)
             db.session.delete(self)
             db.session.commit()
+            flash('Successfully delete the post with title ' + '"' + self.title + '"')
+        except Exception:
+            flash(Exception)
+
+    def remove_image(self):
+        try:
+            if self.image_path:
+                blob_service.delete_blob(blob_container, self.image_path)
+                self.image_path = None
+                db.session.commit()
+                flash('Successfully removed image from the post ' + '"' + self.title + '"')
         except Exception:
             flash(Exception)

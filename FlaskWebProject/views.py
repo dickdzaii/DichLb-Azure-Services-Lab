@@ -58,21 +58,29 @@ def post(id):
         form=form
     )
 
-@app.route('/delete-post/<int:id>', methods=['DELETE'])
+@app.route('/delete_post/<int:id>', methods=['GET'])
 @login_required
 def delete_post(id):
     post = Post.query.get(int(id))
     
     if post != None:
-        form = PostForm(formdata=request.form, obj=post)
-        post.delete_post(form)
-    
+        post.delete_post()
+    else:
+        flash('post not found')
     posts = Post.query.all()
-    return render_template(
-        'index.html',
-        title='Home Page',
-        posts=posts
-    )
+    return redirect(url_for('home'))
+
+@app.route('/remove_image/<int:id>', methods=['GET'])
+@login_required
+def remove_image(id):
+    post = Post.query.get(int(id))
+    
+    if post != None:
+        post.remove_image()
+    else:
+        flash('Post not found.')
+    posts = Post.query.all()
+    return redirect(url_for('home'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -105,6 +113,9 @@ def authorized():
             code=request.args['code'],
             scopes=Config.SCOPE,
             redirect_uri=url_for('authorized', _external=True, _scheme="https"))
+        
+        if "error" in result:
+            return render_template("auth_error.html", result=result)
         session["user"] = result.get("id_token_claims")
         username = session["user"].get('preferred_username').split('@')[0]
         user = User.query.filter_by(username=username).first()
@@ -113,12 +124,6 @@ def authorized():
             db.session.add(new_user)
             db.session.commit()
             user = User.query.filter_by(username=username).first()
-        if "error" in result:
-            return render_template("auth_error.html", result=result)
-        session["user"] = result.get("id_token_claims")
-        # Note: In a real app, we'd use the 'name' property from session["user"] below
-        # Here, we'll use the admin username for anyone who is authenticated by MS
-        user = User.query.filter_by(username="admin").first()
         login_user(user)
         _save_cache(cache)
     return redirect(url_for('home'))
@@ -145,18 +150,19 @@ def _load_cache():
     return cache;
 
 def _save_cache(cache):
-    session['token'] = cache.serialize() if cache.has_state_changed() else session['token'];
+    if cache.has_state_changed:
+        session['token'] = cache.serialize();
 
 def _build_msal_app(cache = None, authority=Config.AUTHORITY):
     return msal.ConfidentialClientApplication(
         token_cache=cache,
         authority=authority,
         client_id=Config.CLIENT_ID,
-        validate_authority=False
+        client_credential=Config.CLIENT_SECRET
     );
 
 def _build_auth_url(authority=None, scopes=None, state=None):    
-    return _build_msal_app(authority = authority).msalApp.get_authorization_request_url(
+    return _build_msal_app(authority = authority).get_authorization_request_url(
         state=state or str(uuid.uuid4()),
         scopes=scopes or [],
         redirect_uri=url_for('authorized', _external = True, _scheme = 'https')
