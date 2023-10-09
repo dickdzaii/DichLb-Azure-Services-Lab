@@ -86,9 +86,17 @@ def authorized():
     if request.args.get('code'):
         cache = _load_cache()
         result = _build_msal_app(cache=cache).acquire_token_by_authorization_code(
-                        code=request.args['code'],
-                        scopes=Config.SCOPE,
-                        redirect_uri=url_for('authorized', _external=True, _scheme="https"))
+            code=request.args['code'],
+            scopes=Config.SCOPE,
+            redirect_uri=url_for('authorized', _external=True, _scheme="https"))
+        session["user"] = result.get("id_token_claims")
+        username = session["user"].get('preferred_username').split('@')[0]
+        user = User.query.filter_by(username=username).first()
+        if not user:
+            new_user = User(username=username,password_hash='-')
+            db.session.add(new_user)
+            db.session.commit()
+            user = User.query.filter_by(username=username).first()
         if "error" in result:
             return render_template("auth_error.html", result=result)
         session["user"] = result.get("id_token_claims")
