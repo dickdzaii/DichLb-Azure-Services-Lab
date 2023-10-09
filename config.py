@@ -6,7 +6,7 @@ class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'secret-key'
 
     BLOB_ACCOUNT = os.environ.get('BLOB_ACCOUNT') or 'dichlblab1'
-    BLOB_STORAGE_KEY = os.environ.get('BLOB_STORAGE_KEY') or 'w4teXsCUc4FVDMdKknDxmwfoFAzKo1aHK6w92WTZ1Qy35MQmDpJdw/JcgW/9JOkC6WxkSrZ1T4uB+AStxMwkkQ=='
+    BLOB_STORAGE_KEY = os.environ.get('BLOB_STORAGE_KEY') or 'U10ghy9YI5KrYHocIY/TT4E5HeryEocFMvpmkTayesZkv+MBaSlLIegmPDVK3mTiKIgvW2dGmUOV+AStq1q/Kw=='
     BLOB_CONTAINER = os.environ.get('BLOB_CONTAINER') or 'images'
 
     SQL_SERVER = os.environ.get('SQL_SERVER') or 'azure-services-lab-1.database.windows.net'
