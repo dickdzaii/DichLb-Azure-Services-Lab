@@ -58,6 +58,22 @@ def post(id):
         form=form
     )
 
+@app.route('/delete-post/<int:id>', methods=['DELETE'])
+@login_required
+def delete_post(id):
+    post = Post.query.get(int(id))
+    
+    if post != None:
+        form = PostForm(formdata=request.form, obj=post)
+        post.delete_post(form)
+    
+    posts = Post.query.all()
+    return render_template(
+        'index.html',
+        title='Home Page',
+        posts=posts
+    )
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -139,12 +155,9 @@ def _build_msal_app(cache = None, authority=Config.AUTHORITY):
         validate_authority=False
     );
 
-def _build_auth_url(authority=None, scopes=None, state=None):
-    msalApp = _build_msal_app(authority = authority);
-    
-    return msalApp.get_authorization_request_url(
+def _build_auth_url(authority=None, scopes=None, state=None):    
+    return _build_msal_app(authority = authority).msalApp.get_authorization_request_url(
         state=state or str(uuid.uuid4()),
         scopes=scopes or [],
         redirect_uri=url_for('authorized', _external = True, _scheme = 'https')
     );
-    
