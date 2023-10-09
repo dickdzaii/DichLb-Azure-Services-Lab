@@ -11,9 +11,9 @@ from flask_session import Session
 app = Flask(__name__)
 app.config.from_object(Config)
 
-app.logger.setLevel(logging.ERROR)
+app.logger.setLevel(logging.WARNING)
 loggingStreamHandler = logging.StreamHandler()
-loggingStreamHandler.setLevel(logging.ERROR)
+loggingStreamHandler.setLevel(logging.WARNING)
 app.logger.addHandler(loggingStreamHandler)
 
 Session(app)
